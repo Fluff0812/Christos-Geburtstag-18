@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="de" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy 18th Birthday, Christos! 🎉</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Playfair Display (edel), Inter (clean) & JetBrains Mono (Ticket-Codes) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700;800&family=Playfair+Display:ital,wght@0,700;0,800;1,700&display=swap" rel="stylesheet">
+
+    <!-- Canvas Confetti für das Geburtstags-Finale -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- html2canvas & jsPDF für direkten PDF-Download des Gutscheins -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'flicker': 'flicker 0.8s infinite alternate',
+                        'pulse-glow': 'pulseGlow 2.5s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        },
+                        flicker: {
+                            '0%': { transform: 'scale(1) rotate(-2deg)', opacity: '0.95' },
+                            '50%': { transform: 'scale(1.08) rotate(2deg)', opacity: '1' },
+                            '100%': { transform: 'scale(0.96) rotate(-1deg)', opacity: '0.9' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { boxShadow: '0 0 20px rgba(245, 158, 11, 0.25)' },
+                            '50%': { boxShadow: '0 0 40px rgba(245, 158, 11, 0.55)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Hintergrund-Atmosphäre */
+        body {
+            background-color: #07090e;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(245, 158, 11, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 85% 75%, rgba(225, 29, 72, 0.12) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(30, 41, 59, 0.4) 0%, transparent 80%);
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        /* Kerzenflamme Styling */
+        .candle-flame {
+            background: radial-gradient(ellipse at bottom, #ffffff 0%, #fde047 35%, #f97316 75%, rgba(239, 68, 68, 0) 100%);
+            border-radius: 50% 50% 50% 50% / 65% 65% 35% 35%;
+            box-shadow: 0 0 14px #f59e0b, 0 0 28px #ea580c;
+            transition: all 0.25s ease-out;
+        }
+
+        .candle-blown .candle-flame {
+            transform: scale(0) translateY(-12px);
+            opacity: 0;
+            box-shadow: none;
+        }
+
+        /* Rauch-Animation beim Auspusten */
+        @keyframes smokeRise {
+            0% { transform: translateY(0) scale(0.5); opacity: 0.8; }
+            100% { transform: translateY(-28px) scale(1.8); opacity: 0; }
+        }
+        .smoke-puff {
+            animation: smokeRise 0.8s ease-out forwards;
+        }
+
+        /* Ticket-Styling mit ausgestanzten Halbkreisen links & rechts */
+        .vip-ticket {
+            position: relative;
+            border-radius: 22px;
+            overflow: hidden;
+            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.3s ease, opacity 0.5s ease;
+            transform-style: preserve-3d;
+        }
+
+        .ticket-perforation {
+            border-top: 2px dashed rgba(255, 255, 255, 0.22);
+            position: relative;
+        }
+
+        .ticket-notch-left, .ticket-notch-right {
+            position: absolute;
+            width: 28px;
+            height: 28px;
+            background-color: #07090e;
+            border-radius: 50%;
+            top: -15px;
+            z-index: 10;
+        }
+        .ticket-notch-left { left: -14px; }
+        .ticket-notch-right { right: -14px; }
+
+        /* Zielflaggen-Muster für Go-Kart Ticket */
+        .checkered-pattern {
+            background-image: 
+                linear-gradient(45deg, rgba(255,255,255,0.05) 25%, transparent 25%), 
+                linear-gradient(-45deg, rgba(255,255,255,0.05) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, rgba(255,255,255,0.05) 75%), 
+                linear-gradient(-45deg, transparent 75%, rgba(255,255,255,0.05) 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+        }
+
+        /* Stempel-Animation nach Auswahl */
+        @keyframes stampSlam {
+            0% { transform: scale(2.8) rotate(-18deg); opacity: 0; }
+            70% { transform: scale(0.92) rotate(-8deg); opacity: 1; }
+            100% { transform: scale(1) rotate(-10deg); opacity: 1; }
+        }
+        .official-stamp {
+            animation: stampSlam 0.55s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Ausgeblendete Tickets nach Entscheidung */
+        .ticket-eliminated {
+            opacity: 0 !important;
+            transform: scale(0.8) translateY(30px) !important;
+            pointer-events: none;
+        }
+
+        /* Druckansicht optimieren */
+        @media print {
+            body { background: #07090e !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-amber-500 selection:text-slate-950">
+
+    <!-- Dekorative schwebende Hintergrund-Partikel -->
+    <div id="particles-container" class="fixed inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- Haupt-Container -->
+    <main class="relative z-10 flex-grow flex flex-col items-center justify-center px-4 py-10 sm:py-16 max-w-6xl mx-auto w-full">
+
+        <!-- ========================================================= -->
+        <!-- PHASE 1: GEBURTSTAGS-INTRO & 18 KERZEN AUSDRÜCKEN         -->
+        <!-- ========================================================= -->
+        <section id="intro-section" class="w-full max-w-2xl mx-auto text-center transition-all duration-700">
+            
+            <!-- Edles Badge -->
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-400/30 text-amber-300 text-xs sm:text-sm font-mono uppercase tracking-wider mb-6 animate-float">
+                <span>✨</span> Level 18 Freischaltung • VIP Zugang
+            </div>
+
+            <!-- Titel -->
+            <h1 class="font-serif text-4xl sm:text-6xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-200 mb-4 drop-shadow-sm">
+                Alles Gute zum 18., Christos!
+            </h1>
+
+            <p id="intro-subtitle" class="text-slate-300 text-base sm:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+                Endlich volljährig! Bevor sich dein Geburtstags-Tresor öffnet, musst du noch ein letztes Ritual meistern: 
+                <span class="text-amber-300 font-semibold">Drücke alle 18 Geburtstagskerzen aus!</span>
+            </p>
+
+            <!-- Interaktive Kerzen-Box / Torte -->
+            <div class="relative bg-slate-900/80 backdrop-blur-xl border border-amber-500/20 rounded-3xl p-6 sm:p-10 shadow-2xl mb-6">
+                
+                <!-- Status-Text (witzige Meldungen) -->
+                <div class="h-8 flex items-center justify-center mb-6">
+                    <p id="candle-status-text" class="font-mono text-sm sm:text-base text-amber-400 font-medium tracking-wide">
+                        🔥 Noch 18 Kerzen brennen – tippe oder wische darüber!
+                    </p>
+                </div>
+
+                <!-- Grid für die 18 Kerzen -->
+                <div id="candles-grid" class="grid grid-cols-6 sm:grid-cols-9 gap-y-6 gap-x-2 sm:gap-x-3 justify-items-center py-4 px-2 bg-slate-950/60 rounded-2xl border border-slate-800/80 select-none">
+                    <!-- Kerzen werden per JS generiert -->
+                </div>
+
+                <!-- Fortschrittsbalken -->
+                <div class="mt-8">
+                    <div class="flex justify-between text-xs font-mono text-slate-400 mb-2">
+                        <span>VOLLJÄHRIGKEITS-CHECK</span>
+                        <span id="progress-percent">0%</span>
+                    </div>
+                    <div class="w-full h-3 bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-700">
+                        <div id="progress-bar" class="h-full bg-gradient-to-r from-amber-500 via-yellow-400 to-amber-300 rounded-full transition-all duration-300 w-0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================================= -->
+        <!-- PHASE 2: DIE 3 GUTSCHEIN-TICKETS & FINALE AUSWAHL         -->
+        <!-- ========================================================= -->
+        <section id="tickets-section" class="hidden w-full transition-all duration-700 opacity-0 translate-y-6">
+            
+            <!-- Header Bereich (ändert sich nach Auswahl) -->
+            <div id="tickets-header" class="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-emerald-300 text-xs sm:text-sm font-mono uppercase tracking-wider mb-4">
+                    ✨ Tresor entsperrt • Dein 18. Geburtstagsgeschenk
+                </div>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-white mb-4">
+                    Such dir dein Geschenk aus, <span class="text-amber-400">Christos!</span>
+                </h2>
+                <p class="text-slate-300 text-base sm:text-lg">
+                    Jetzt bist du dran: Entscheide dich für <strong class="text-white">einen</strong> dieser drei Gutscheine. 
+                    Sobald du deine Wahl bestätigst, wird dein persönliches Ticket fest für dich eingelöst.
+                </p>
+            </div>
+
+            <!-- Header für den gewählten Zustand (initial versteckt) -->
+            <div id="chosen-header" class="hidden text-center max-w-2xl mx-auto mb-8">
+                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-400/50 text-amber-300 text-xs sm:text-sm font-mono uppercase tracking-wider mb-3">
+                    🏆 Offizieller Geburtstags-Gutschein
+                </div>
+                <h2 class="font-serif text-3xl sm:text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-200 mb-3">
+                    Deine Wahl steht fest!
+                </h2>
+                <p class="text-slate-300 text-sm sm:text-base">
+                    Alles Gute zum 18. Geburtstag, Christos! Zeig dieses Ticket einfach vor, wenn wir loslegen.
+                </p>
+            </div>
+
+            <!-- Grid für die 3 Tickets -->
+            <div id="tickets-grid" class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch justify-center">
+
+                <!-- TICKET 1: MHP RIESEN LUDWIGSBURG -->
+                <div id="ticket-card-riesen" class="ticket-wrapper flex flex-col" data-ticket="riesen">
+                    <div class="vip-ticket flex-grow flex flex-col justify-between bg-gradient-to-br from-zinc-900 via-neutral-900 to-amber-950/80 border-2 border-amber-500/50 shadow-[0_15px_40px_rgba(245,158,11,0.18)]">
+                        
+                        <!-- Oberer Bereich: Event Info -->
+                        <div class="p-6 sm:p-7 relative">
+                            <!-- Ticket Tag & Nummer -->
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="px-3 py-1 rounded-md bg-amber-500 text-zinc-950 font-mono font-bold text-xs tracking-widest uppercase">
+                                    HEIMSPIEL-TICKET
+                                </span>
+                                <span class="font-mono text-xs text-amber-300/70">#18-MHP-LB</span>
+                            </div>
+
+                            <!-- Icon & Titel -->
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-3xl shadow-lg shrink-0">
+                                    🏀
+                                </div>
+                                <div>
+                                    <p class="text-xs font-mono uppercase tracking-wider text-amber-400">Spieltag-Ticket</p>
+                                    <h3 class="font-serif text-2xl font-bold text-white leading-tight">MHP RIESEN Ludwigsburg</h3>
+                                </div>
+                            </div>
+
+                            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                                Ich lade dich ein, gemeinsam live in der MHPArena mitzufiebern! Laute Stimmung, krachende Dunks und ein richtig starker Basketball-Abend zusammen – dein Ticket geht natürlich auf mich.
+                            </p>
+
+                            <!-- Details Box -->
+                            <div class="space-y-2 bg-black/40 rounded-xl p-3.5 border border-amber-500/20 text-xs font-mono text-slate-300">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">LOCATION:</span>
+                                    <span class="text-amber-300 font-semibold">MHPArena Ludwigsburg</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INHABER:</span>
+                                    <span class="text-white font-semibold">Christos S.</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INKLUSIVE:</span>
+                                    <span class="text-emerald-400">Heimspiel-Ticket & Arena-Abend</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Abrisskante / Perforation -->
+                        <div class="relative flex items-center my-1">
+                            <div class="ticket-notch-left"></div>
+                            <div class="w-full ticket-perforation mx-4"></div>
+                            <div class="ticket-notch-right"></div>
+                        </div>
+
+                        <!-- Unterer Bereich: Barcode & Action -->
+                        <div class="p-6 sm:p-7 pt-4 bg-black/30 flex flex-col items-center">
+                            <!-- Dekorativer Barcode -->
+                            <div class="w-full flex flex-col items-center mb-5 opacity-75">
+                                <div class="h-8 w-full max-w-[220px] flex items-stretch justify-between gap-[2px]">
+                                    <span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-2"></span>
+                                    <span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-1.5"></span><span class="bg-amber-200 w-0.5"></span>
+                                    <span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-2"></span><span class="bg-amber-200 w-0.5"></span>
+                                    <span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-1.5"></span><span class="bg-amber-200 w-0.5"></span>
+                                    <span class="bg-amber-200 w-2"></span><span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-0.5"></span>
+                                    <span class="bg-amber-200 w-1.5"></span><span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-2"></span>
+                                </div>
+                                <span class="text-[10px] font-mono tracking-[0.35em] text-amber-300/70 mt-1">RIESEN-TICKET-18</span>
+                            </div>
+
+                            <button onclick="openConfirmModal('riesen', 'MHP RIESEN Ludwigsburg – Heimspiel-Ticket')" class="select-ticket-btn w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-zinc-950 font-bold text-sm uppercase tracking-wider shadow-lg shadow-amber-500/25 transform active:scale-95 transition cursor-pointer">
+                                Dieses Ticket wählen
+                            </button>
+
+                            <!-- Stempel-Container (wird nur nach Auswahl sichtbar) -->
+                            <div class="stamp-area hidden mt-2 text-center">
+                                <div class="official-stamp inline-block border-4 border-emerald-400 text-emerald-400 font-mono font-extrabold text-lg sm:text-xl px-4 py-1.5 rounded-lg uppercase tracking-widest shadow-[0_0_20px_rgba(52,211,153,0.4)]">
+                                    ✓ DEINE WAHL • EINGELÖST
+                                </div>
+                                <p class="text-xs text-amber-200/90 mt-3 font-medium">Gültig für Christos S. • Alles Gute zum 18.!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- TICKET 2: KINO-ABEND NACH WAHL -->
+                <div id="ticket-card-kino" class="ticket-wrapper flex flex-col" data-ticket="kino">
+                    <div class="vip-ticket flex-grow flex flex-col justify-between bg-gradient-to-br from-rose-950 via-red-950 to-zinc-950 border-2 border-rose-500/50 shadow-[0_15px_40px_rgba(244,63,94,0.18)]">
+                        
+                        <!-- Oberer Bereich: Event Info -->
+                        <div class="p-6 sm:p-7 relative">
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="px-3 py-1 rounded-md bg-gradient-to-r from-amber-300 to-yellow-500 text-rose-950 font-mono font-bold text-xs tracking-widest uppercase">
+                                    KINO-GUTSCHEIN
+                                </span>
+                                <span class="font-mono text-xs text-rose-300/70">#18-CINE-PASS</span>
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-rose-500 to-red-700 flex items-center justify-center text-3xl shadow-lg border border-amber-300/30 shrink-0">
+                                    🎬
+                                </div>
+                                <div>
+                                    <p class="text-xs font-mono uppercase tracking-wider text-amber-300">Freie Filmauswahl</p>
+                                    <h3 class="font-serif text-2xl font-bold text-white leading-tight">Kino-Abend nach Wahl</h3>
+                                </div>
+                            </div>
+
+                            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                                Ein entspannter Abend nur für uns! Du suchst dir genau den Film aus, auf den du am meisten Bock hast – das Kinoticket, eine fette Portion Popcorn und kalte Drinks gehen komplett auf mich.
+                            </p>
+
+                            <div class="space-y-2 bg-black/40 rounded-xl p-3.5 border border-rose-400/20 text-xs font-mono text-slate-300">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">FILM:</span>
+                                    <span class="text-amber-300 font-semibold">Deine freie Auswahl</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INHABER:</span>
+                                    <span class="text-white font-semibold">Christos S.</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INKLUSIVE:</span>
+                                    <span class="text-emerald-400">Ticket + Popcorn & Drinks</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Abrisskante -->
+                        <div class="relative flex items-center my-1">
+                            <div class="ticket-notch-left"></div>
+                            <div class="w-full ticket-perforation mx-4"></div>
+                            <div class="ticket-notch-right"></div>
+                        </div>
+
+                        <!-- Unterer Bereich -->
+                        <div class="p-6 sm:p-7 pt-4 bg-black/30 flex flex-col items-center">
+                            <div class="w-full flex flex-col items-center mb-5 opacity-75">
+                                <div class="h-8 w-full max-w-[220px] flex items-stretch justify-between gap-[2px]">
+                                    <span class="bg-rose-200 w-1.5"></span><span class="bg-rose-200 w-0.5"></span><span class="bg-rose-200 w-1"></span>
+                                    <span class="bg-rose-200 w-2"></span><span class="bg-rose-200 w-0.5"></span><span class="bg-rose-200 w-1"></span>
+                                    <span class="bg-rose-200 w-1.5"></span><span class="bg-rose-200 w-0.5"></span><span class="bg-rose-200 w-2"></span>
+                                    <span class="bg-rose-200 w-1"></span><span class="bg-rose-200 w-0.5"></span><span class="bg-rose-200 w-1.5"></span>
+                                    <span class="bg-rose-200 w-1"></span><span class="bg-rose-200 w-2"></span><span class="bg-rose-200 w-0.5"></span>
+                                    <span class="bg-rose-200 w-1"></span><span class="bg-rose-200 w-1.5"></span><span class="bg-rose-200 w-1"></span>
+                                </div>
+                                <span class="text-[10px] font-mono tracking-[0.35em] text-rose-300/70 mt-1">CINEMA-NIGHT-18</span>
+                            </div>
+
+                            <button onclick="openConfirmModal('kino', 'Kino-Abend nach Wahl (inkl. Snacks)')" class="select-ticket-btn w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-rose-500 to-red-600 hover:from-rose-400 hover:to-red-500 text-white font-bold text-sm uppercase tracking-wider shadow-lg shadow-rose-500/25 transform active:scale-95 transition cursor-pointer">
+                                Dieses Ticket wählen
+                            </button>
+
+                            <div class="stamp-area hidden mt-2 text-center">
+                                <div class="official-stamp inline-block border-4 border-emerald-400 text-emerald-400 font-mono font-extrabold text-lg sm:text-xl px-4 py-1.5 rounded-lg uppercase tracking-widest shadow-[0_0_20px_rgba(52,211,153,0.4)]">
+                                    ✓ DEINE WAHL • EINGELÖST
+                                </div>
+                                <p class="text-xs text-rose-200/90 mt-3 font-medium">Gültig für Christos S. • Alles Gute zum 18.!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- TICKET 3: GO-KART ACTION-TAG -->
+                <div id="ticket-card-kart" class="ticket-wrapper flex flex-col" data-ticket="kart">
+                    <div class="vip-ticket checkered-pattern flex-grow flex flex-col justify-between bg-gradient-to-br from-slate-900 via-zinc-900 to-red-950/70 border-2 border-red-500/50 shadow-[0_15px_40px_rgba(239,68,68,0.18)]">
+                        
+                        <!-- Oberer Bereich: Event Info -->
+                        <div class="p-6 sm:p-7 relative">
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="px-3 py-1 rounded-md bg-red-600 text-white font-mono font-bold text-xs tracking-widest uppercase">
+                                    RENNTAG-TICKET
+                                </span>
+                                <span class="font-mono text-xs text-slate-400">#18-RACE-DAY</span>
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-600 to-zinc-800 flex items-center justify-center text-3xl shadow-lg border border-slate-400/30 shrink-0">
+                                    🏎️
+                                </div>
+                                <div>
+                                    <p class="text-xs font-mono uppercase tracking-wider text-red-400">Vollgas & Adrenalin</p>
+                                    <h3 class="font-serif text-2xl font-bold text-white leading-tight">Go-Kart Action-Tag</h3>
+                                </div>
+                            </div>
+
+                            <p class="text-slate-300 text-sm leading-relaxed mb-5">
+                                Jetzt wo du 18 bist, geben wir richtig Gas! Ein ganzer Tag voller Action auf der Kartbahn, heiße Duelle in jeder Kurve – und wir klären ein für alle Mal, wer von uns schneller auf der Strecke ist.
+                            </p>
+
+                            <div class="space-y-2 bg-black/50 rounded-xl p-3.5 border border-slate-600/30 text-xs font-mono text-slate-300">
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">STRECKE:</span>
+                                    <span class="text-red-400 font-semibold">Kartbahn deiner Wahl</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INHABER:</span>
+                                    <span class="text-white font-semibold">Christos S.</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INKLUSIVE:</span>
+                                    <span class="text-emerald-400">Renn-Sessions & Leihhelm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Abrisskante -->
+                        <div class="relative flex items-center my-1">
+                            <div class="ticket-notch-left"></div>
+                            <div class="w-full ticket-perforation mx-4"></div>
+                            <div class="ticket-notch-right"></div>
+                        </div>
+
+                        <!-- Unterer Bereich -->
+                        <div class="p-6 sm:p-7 pt-4 bg-black/40 flex flex-col items-center">
+                            <div class="w-full flex flex-col items-center mb-5 opacity-75">
+                                <div class="h-8 w-full max-w-[220px] flex items-stretch justify-between gap-[2px]">
+                                    <span class="bg-slate-200 w-2"></span><span class="bg-slate-200 w-0.5"></span><span class="bg-slate-200 w-1"></span>
+                                    <span class="bg-slate-200 w-1.5"></span><span class="bg-slate-200 w-0.5"></span><span class="bg-slate-200 w-2"></span>
+                                    <span class="bg-slate-200 w-0.5"></span><span class="bg-slate-200 w-1"></span><span class="bg-slate-200 w-1.5"></span>
+                                    <span class="bg-slate-200 w-0.5"></span><span class="bg-slate-200 w-2"></span><span class="bg-slate-200 w-1"></span>
+                                    <span class="bg-slate-200 w-0.5"></span><span class="bg-slate-200 w-1.5"></span><span class="bg-slate-200 w-1"></span>
+                                    <span class="bg-slate-200 w-2"></span><span class="bg-slate-200 w-0.5"></span><span class="bg-slate-200 w-1"></span>
+                                </div>
+                                <span class="text-[10px] font-mono tracking-[0.35em] text-slate-400 mt-1">POLE-POSITION-18</span>
+                            </div>
+
+                            <button onclick="openConfirmModal('kart', 'Go-Kart Action-Tag')" class="select-ticket-btn w-full py-3.5 px-5 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white font-bold text-sm uppercase tracking-wider shadow-lg shadow-red-600/25 transform active:scale-95 transition cursor-pointer">
+                                Dieses Ticket wählen
+                            </button>
+
+                            <div class="stamp-area hidden mt-2 text-center">
+                                <div class="official-stamp inline-block border-4 border-emerald-400 text-emerald-400 font-mono font-extrabold text-lg sm:text-xl px-4 py-1.5 rounded-lg uppercase tracking-widest shadow-[0_0_20px_rgba(52,211,153,0.4)]">
+                                    ✓ DEINE WAHL • EINGELÖST
+                                </div>
+                                <p class="text-xs text-slate-200/90 mt-3 font-medium">Gültig für Christos S. • Alles Gute zum 18.!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ========================================================= -->
+            <!-- 4. OPTION: JOKER / EIGENE WUNSCH-IDEE                     -->
+            <!-- ========================================================= -->
+            <div id="custom-idea-banner" class="mt-10 max-w-2xl mx-auto">
+                <div class="relative rounded-2xl bg-gradient-to-r from-slate-900/90 via-amber-950/30 to-slate-900/90 border border-amber-400/35 p-5 sm:p-6 shadow-[0_12px_35px_rgba(245,158,11,0.12)] backdrop-blur-md flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+                    <div class="flex flex-col sm:flex-row items-center gap-4">
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-2xl shrink-0">
+                            🃏
+                        </div>
+                        <div>
+                            <span class="text-[11px] font-mono uppercase tracking-widest text-amber-400 block mb-0.5">
+                                JOKER-OPTION • 100% DEINE WAHL
+                            </span>
+                            <h3 class="font-serif text-xl font-bold text-white">
+                                Doch Lust auf was ganz anderes?
+                            </h3>
+                            <p class="text-slate-300 text-xs sm:text-sm mt-0.5">
+                                Erstell dir deinen eigenen Wunsch-Gutschein für deinen 18. Geburtstag!
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="openCustomModal()" class="w-full sm:w-auto shrink-0 py-3 px-5 rounded-xl bg-amber-500/15 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border border-amber-400/50 font-bold text-xs sm:text-sm uppercase tracking-wider transition-all cursor-pointer">
+                        ✨ Eigene Idee eintragen
+                    </button>
+                </div>
+            </div>
+
+            <!-- Container für das dynamisch erzeugte 4. Ticket (Eigene Idee) -->
+            <div id="custom-ticket-container" class="hidden flex justify-center"></div>
+
+            <!-- Aktionsleiste unter dem final gewählten Ticket -->
+            <div id="post-selection-actions" class="hidden no-print mt-10 flex flex-col items-center justify-center gap-4">
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xl">
+                    <button onclick="downloadVoucherPDF()" id="pdf-download-btn" class="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition cursor-pointer">
+                        <span>📄</span> Gutschein als PDF herunterladen
+                    </button>
+                    <button onclick="copyShareLink()" id="copy-btn" class="w-full sm:w-auto flex-1 inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 border border-amber-400/35 font-semibold text-sm transition cursor-pointer">
+                        <span>🔗</span> Link für dich kopieren
+                    </button>
+                </div>
+
+                <!-- Optionaler direkter WhatsApp-Share Button + Bestätigungs-Toast -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <a id="whatsapp-share-link" href="#" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/35 text-emerald-300 border border-emerald-500/40 text-xs font-semibold transition">
+                        <span>💬</span> Direkt per WhatsApp schicken
+                    </a>
+                </div>
+                <p id="share-toast" class="hidden text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-4 py-1.5 rounded-full">
+                    ✅ Link kopiert! Einfach per WhatsApp schicken.
+                </p>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 1: EIGENE WUNSCH-IDEE ERSTELLEN (JOKER-TICKET)      -->
+    <!-- ========================================================= -->
+    <div id="custom-idea-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl transform transition-all scale-95" id="custom-modal-box">
+            <div class="flex items-center justify-between mb-4">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 text-amber-300 text-xs font-mono uppercase tracking-wider">
+                    🃏 Joker-Ticket • Eigene Idee
+                </div>
+                <button onclick="closeCustomModal()" class="w-8 h-8 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition cursor-pointer" aria-label="Schließen">
+                    ✕
+                </button>
+            </div>
+
+            <h3 class="font-serif text-2xl sm:text-3xl font-bold text-white mb-2">
+                Dein eigener Wunsch-Gutschein
+            </h3>
+            <p class="text-slate-300 text-sm mb-5">
+                Worauf hast du richtig Bock, Christos? Trag deine Idee ein – daraus wird direkt dein persönliches VIP-Ticket erstellt!
+            </p>
+
+            <form id="custom-idea-form" onsubmit="submitCustomIdea(event)" class="space-y-4">
+                <div>
+                    <label for="custom-title-input" class="block text-xs font-mono uppercase tracking-wider text-amber-300 mb-1.5">
+                        Aktivität / Gutschein-Titel *
+                    </label>
+                    <input type="text" id="custom-title-input" required maxlength="60" placeholder="z. B. Roadtrip ans Meer, Steakhouse-Abend, Paintball..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-white text-sm placeholder:text-slate-500">
+                </div>
+
+                <div>
+                    <label for="custom-desc-input" class="block text-xs font-mono uppercase tracking-wider text-amber-300 mb-1.5">
+                        Kurze Beschreibung / Wunsch-Details *
+                    </label>
+                    <textarea id="custom-desc-input" required rows="3" maxlength="220" placeholder="Was genau machen wir und worauf freust du dich am meisten?" class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-white text-sm placeholder:text-slate-500 resize-none"></textarea>
+                </div>
+
+                <div>
+                    <label for="custom-date-input" class="block text-xs font-mono uppercase tracking-wider text-amber-300 mb-1.5">
+                        Wunschdatum oder Zeitraum <span class="text-slate-500">(optional)</span>
+                    </label>
+                    <input type="text" id="custom-date-input" maxlength="45" placeholder="z. B. Diesen Sommer, nächstes Wochenende, 15.06..." class="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 focus:border-amber-400 focus:outline-none text-white text-sm placeholder:text-slate-500">
+                </div>
+
+                <p class="text-xs text-rose-400/90 font-medium pt-1">
+                    ⚠️ Sobald du dein Ticket erstellst, ist deine Wahl endgültig und die anderen drei Gutscheine verfallen!
+                </p>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closeCustomModal()" class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition cursor-pointer">
+                        Abbrechen
+                    </button>
+                    <button type="submit" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition cursor-pointer">
+                        Ticket erstellen & einlösen 🎉
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- MODAL 2: SICHERHEITSABFRAGE FÜR VORGEFERTIGTE TICKETS     -->
+    <!-- ========================================================= -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80 backdrop-blur-sm transition-opacity">
+        <div class="bg-slate-900 border border-amber-500/40 rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl transform transition-all scale-95" id="confirm-modal-box">
+            <div class="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center text-3xl mx-auto mb-4">
+                🎫
+            </div>
+            <h3 class="font-serif text-2xl font-bold text-center text-white mb-2">
+                Bist du sicher? Diese Wahl ist endgültig!
+            </h3>
+            <p class="text-slate-300 text-center text-sm mb-4">
+                Du hast dich für folgenden Gutschein entschieden:
+            </p>
+            <div class="bg-slate-950/90 border border-amber-500/30 rounded-xl p-3.5 text-center mb-5">
+                <span id="modal-ticket-name" class="font-bold text-amber-400 text-base"></span>
+            </div>
+            <p class="text-xs text-center text-rose-400/90 font-medium mb-6">
+                ⚠️ Die anderen beiden Tickets verfallen danach!
+            </p>
+            <div class="flex gap-3">
+                <button onclick="closeConfirmModal()" class="flex-1 py-3 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold text-sm transition cursor-pointer">
+                    Noch überlegen
+                </button>
+                <button onclick="confirmTicketSelection()" class="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-bold text-sm shadow-lg shadow-amber-500/20 transition cursor-pointer">
+                    Ja, einlösen! 🎉
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Unauffällige Fußzeile inklusive Reset-Link zum Testen -->
+    <footer class="relative z-10 no-print py-6 px-4 text-center text-xs text-slate-600">
+        <p>Erstellt zum 18. Geburtstag von Christos S.</p>
+        <button onclick="resetExperience()" class="mt-2 text-[11px] text-slate-700 hover:text-slate-400 underline transition cursor-pointer" title="Nur zum Testen: Setzt Kerzen und Ticket-Auswahl zurück">
+            [Vorschau / Auswahl zurücksetzen]
+        </button>
+    </footer>
+
+    <!-- ========================================================= -->
+    <!-- JAVASCRIPT LOGIK                                          -->
+    <!-- ========================================================= -->
+    <script>
+        // --- KONFIGURATION & STATE ---
+        const STORAGE_KEY_TICKET = 'christos_18th_selected_ticket';
+        const STORAGE_KEY_CUSTOM_DATA = 'christos_18th_custom_data';
+        const TOTAL_CANDLES = 18;
+        let blownCandlesCount = 0;
+        let pendingTicketId = null;
+        let pendingTicketTitle = '';
+        let introCompleted = false;
+        let currentCustomData = null;
+
+        // Witzige Fortschrittstexte während des Kerzen-Ausdrückens
+        const funnyMessages = {
+            18: "🔥 Noch 18 Kerzen brennen – tippe oder wische darüber!",
+            15: "💨 Guter Anfang! Level 18 wird freigeschaltet...",
+            12: "🎂 Weiter so, Christos! Volljährigkeit wird verifiziert...",
+            9:  "⚡ Halbzeit! Die ersten Erwachsenen-Rechte werden geladen...",
+            5:  "🔥 Fast geschafft! Nur noch 5 Kerzen übrig...",
+            2:  "👀 Gleich öffnet sich dein Geburtstags-Tresor...",
+            0:  "🎉 GESCHAFFT! Happy 18th Birthday, Christos!"
+        };
+
+        // --- UTF-8 SICHERES BASE64 KODIEREN / DEKODIEREN FÜR SHARE-LINKS ---
+        function encodeSharePayload(obj) {
+            const jsonStr = JSON.stringify(obj);
+            const bytes = new TextEncoder().encode(jsonStr);
+            let binStr = '';
+            bytes.forEach(b => binStr += String.fromCharCode(b));
+            return btoa(binStr).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+        }
+
+        function decodeSharePayload(encoded) {
+            try {
+                let base64 = encoded.replace(/-/g, '+').replace(/_/g, '/');
+                while (base64.length % 4) base64 += '=';
+                const binStr = atob(base64);
+                const bytes = new Uint8Array(binStr.length);
+                for (let i = 0; i < binStr.length; i++) bytes[i] = binStr.charCodeAt(i);
+                return JSON.parse(new TextDecoder().decode(bytes));
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // --- INITIALISIERUNG BEIM LADEN ---
+        document.addEventListener('DOMContentLoaded', () => {
+            initParticles();
+
+            // 1. Prüfen, ob die Seite über einen geteilten Link (?choice=...) geöffnet wurde
+            const urlParams = new URLSearchParams(window.location.search);
+            const sharedParam = urlParams.get('choice');
+            if (sharedParam) {
+                const decoded = decodeSharePayload(sharedParam);
+                if (decoded && ['riesen', 'kino', 'kart', 'custom'].includes(decoded.id)) {
+                    if (decoded.id === 'custom' && decoded.custom) {
+                        currentCustomData = decoded.custom;
+                        localStorage.setItem(STORAGE_KEY_CUSTOM_DATA, JSON.stringify(decoded.custom));
+                    }
+                    localStorage.setItem(STORAGE_KEY_TICKET, decoded.id);
+                    showTicketsPhase(true);
+                    applyFinalTicketState(decoded.id, false);
+                    return;
+                }
+            }
+            
+            // 2. Prüfen, ob Christos bereits lokal ein Ticket gewählt hat
+            const savedTicket = localStorage.getItem(STORAGE_KEY_TICKET);
+            if (savedTicket && ['riesen', 'kino', 'kart', 'custom'].includes(savedTicket)) {
+                if (savedTicket === 'custom') {
+                    try {
+                        currentCustomData = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_DATA) || 'null');
+                    } catch (e) {
+                        currentCustomData = null;
+                    }
+                }
+                showTicketsPhase(true);
+                applyFinalTicketState(savedTicket, false);
+            } else {
+                buildCandles();
+            }
+        });
+
+        // --- PHASE 1: KERZEN GENERIEREN & INTERAKTION ---
+        function buildCandles() {
+            const grid = document.getElementById('candles-grid');
+            grid.innerHTML = '';
+            blownCandlesCount = 0;
+
+            for (let i = 1; i <= TOTAL_CANDLES; i++) {
+                const candleWrapper = document.createElement('div');
+                candleWrapper.className = 'candle-item flex flex-col items-center cursor-pointer group p-1 relative';
+                candleWrapper.dataset.id = i;
+                candleWrapper.dataset.blown = 'false';
+
+                const colors = [
+                    'from-amber-300 to-amber-500',
+                    'from-sky-300 to-blue-500',
+                    'from-rose-300 to-rose-500',
+                    'from-emerald-300 to-emerald-500'
+                ];
+                const colorClass = colors[i % colors.length];
+
+                candleWrapper.innerHTML = `
+                    <!-- Flamme -->
+                    <div class="candle-flame w-3.5 h-5 mb-1 animate-flicker" style="animation-delay: ${(i * 0.13) % 0.8}s"></div>
+                    <!-- Docht -->
+                    <div class="w-0.5 h-1.5 bg-slate-400"></div>
+                    <!-- Kerzenkörper -->
+                    <div class="w-3.5 sm:w-4 h-10 sm:h-12 rounded-t-sm rounded-b-md bg-gradient-to-b ${colorClass} shadow-inner relative overflow-hidden border border-white/20">
+                        <div class="w-full h-1.5 bg-white/30 mt-2 -rotate-12"></div>
+                        <div class="w-full h-1.5 bg-white/30 mt-3 -rotate-12"></div>
+                    </div>
+                    <!-- Zahl -->
+                    <span class="text-[10px] font-mono text-slate-500 mt-1 group-hover:text-amber-400 transition">${i}</span>
+                `;
+
+                // Klick & Wisch-Events
+                candleWrapper.addEventListener('click', () => blowOutCandle(candleWrapper));
+                candleWrapper.addEventListener('mouseenter', (e) => {
+                    if (e.buttons === 1) blowOutCandle(candleWrapper);
+                });
+
+                grid.appendChild(candleWrapper);
+            }
+
+            // Touch-Wischen über mehrere Kerzen auf Smartphones unterstützen
+            grid.addEventListener('touchmove', (e) => {
+                const touch = e.touches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                if (target) {
+                    const candle = target.closest('.candle-item');
+                    if (candle) blowOutCandle(candle);
+                }
+            }, { passive: true });
+        }
+
+        function blowOutCandle(candleEl) {
+            if (candleEl.dataset.blown === 'true' || introCompleted) return;
+
+            candleEl.dataset.blown = 'true';
+            candleEl.classList.add('candle-blown');
+            blownCandlesCount++;
+
+            // Kleines Rauchwölkchen erzeugen
+            const smoke = document.createElement('div');
+            smoke.className = 'smoke-puff absolute top-0 w-3 h-3 rounded-full bg-slate-300/60 blur-[2px] pointer-events-none';
+            candleEl.appendChild(smoke);
+            setTimeout(() => smoke.remove(), 850);
+
+            updateCandleProgress();
+        }
+
+        function updateCandleProgress() {
+            const remaining = TOTAL_CANDLES - blownCandlesCount;
+            const percent = Math.round((blownCandlesCount / TOTAL_CANDLES) * 100);
+
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+            document.getElementById('progress-percent').textContent = `${percent}%`;
+
+            const statusEl = document.getElementById('candle-status-text');
+            if (funnyMessages[remaining]) {
+                statusEl.textContent = funnyMessages[remaining];
+            } else {
+                statusEl.textContent = `🔥 Noch ${remaining} ${remaining === 1 ? 'Kerze' : 'Kerzen'} übrig...`;
+            }
+
+            // Wenn alle 18 Kerzen aus sind -> Konfetti & direkt weiter zu den Gutscheinen!
+            if (blownCandlesCount >= TOTAL_CANDLES && !introCompleted) {
+                introCompleted = true;
+                triggerBirthdayReveal();
+            }
+        }
+
+        // --- ÜBERGANG ZU DEN GUTSCHEINEN (STAGE 2) ---
+        function triggerBirthdayReveal() {
+            fireConfettiBurst();
+
+            setTimeout(() => {
+                const intro = document.getElementById('intro-section');
+                intro.style.opacity = '0';
+                intro.style.transform = 'scale(0.95) translateY(-20px)';
+
+                setTimeout(() => {
+                    showTicketsPhase(false);
+                }, 600);
+            }, 900);
+        }
+
+        function showTicketsPhase(instant = false) {
+            const intro = document.getElementById('intro-section');
+            const ticketsSec = document.getElementById('tickets-section');
+
+            intro.classList.add('hidden');
+            ticketsSec.classList.remove('hidden');
+
+            if (instant) {
+                ticketsSec.classList.remove('opacity-0', 'translate-y-6');
+            } else {
+                requestAnimationFrame(() => {
+                    ticketsSec.classList.remove('opacity-0', 'translate-y-6');
+                });
+            }
+            initTicket3DTilt();
+        }
+
+        // --- 3D NEIGUNGSEFFEKT FÜR TICKETS ---
+        function initTicket3DTilt() {
+            const cards = document.querySelectorAll('.vip-ticket');
+            cards.forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    if (window.innerWidth < 768) return;
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    const rotateX = ((y - centerY) / centerY) * -6;
+                    const rotateY = ((x - centerX) / centerX) * 6;
+                    card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.02)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale(1)';
+                });
+            });
+        }
+
+        // --- MODAL & TICKET-AUSWAHL LOGIK ---
+        function openConfirmModal(ticketId, ticketTitle) {
+            pendingTicketId = ticketId;
+            pendingTicketTitle = ticketTitle;
+
+            document.getElementById('modal-ticket-name').textContent = ticketTitle;
+            const modal = document.getElementById('confirm-modal');
+            const box = document.getElementById('confirm-modal-box');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            requestAnimationFrame(() => {
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            });
+        }
+
+        function closeConfirmModal() {
+            const modal = document.getElementById('confirm-modal');
+            const box = document.getElementById('confirm-modal-box');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 150);
+        }
+
+        function confirmTicketSelection() {
+            if (!pendingTicketId) return;
+            closeConfirmModal();
+
+            // Auswahl dauerhaft speichern
+            localStorage.setItem(STORAGE_KEY_TICKET, pendingTicketId);
+
+            // Endgültigen Zustand anwenden + Konfetti
+            applyFinalTicketState(pendingTicketId, true);
+        }
+
+        // --- MODAL & LOGIK FÜR EIGENE IDEE (JOKER-TICKET) ---
+        function openCustomModal() {
+            const modal = document.getElementById('custom-idea-modal');
+            const box = document.getElementById('custom-modal-box');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            requestAnimationFrame(() => {
+                box.classList.remove('scale-95');
+                box.classList.add('scale-100');
+            });
+            setTimeout(() => document.getElementById('custom-title-input').focus(), 100);
+        }
+
+        function closeCustomModal() {
+            const modal = document.getElementById('custom-idea-modal');
+            const box = document.getElementById('custom-modal-box');
+            box.classList.remove('scale-100');
+            box.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 150);
+        }
+
+        function submitCustomIdea(event) {
+            event.preventDefault();
+            const title = document.getElementById('custom-title-input').value.trim();
+            const desc = document.getElementById('custom-desc-input').value.trim();
+            const date = document.getElementById('custom-date-input').value.trim();
+
+            if (!title || !desc) return;
+
+            currentCustomData = {
+                title: title,
+                desc: desc,
+                date: date || 'Flexibel nach Absprache'
+            };
+
+            localStorage.setItem(STORAGE_KEY_TICKET, 'custom');
+            localStorage.setItem(STORAGE_KEY_CUSTOM_DATA, JSON.stringify(currentCustomData));
+
+            closeCustomModal();
+            applyFinalTicketState('custom', true);
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function renderCustomTicketCard(data) {
+            const safeTitle = escapeHtml(data?.title || 'Wunsch-Erlebnis nach Wahl');
+            const safeDesc = escapeHtml(data?.desc || 'Ein unvergessliches Erlebnis zum 18. Geburtstag – komplett auf mich!');
+            const safeDate = escapeHtml(data?.date || 'Flexibel nach Absprache');
+
+            const container = document.getElementById('custom-ticket-container');
+            container.innerHTML = `
+                <div id="ticket-card-custom" class="ticket-wrapper flex flex-col w-full max-w-md mx-auto" data-ticket="custom">
+                    <div class="vip-ticket animate-pulse-glow flex-grow flex flex-col justify-between bg-gradient-to-br from-amber-950/90 via-zinc-900 to-yellow-950/80 border-2 border-amber-400/70 shadow-[0_15px_45px_rgba(245,158,11,0.28)]">
+                        
+                        <!-- Oberer Bereich: Event Info -->
+                        <div class="p-6 sm:p-7 relative">
+                            <div class="flex justify-between items-center mb-5">
+                                <span class="px-3 py-1 rounded-md bg-gradient-to-r from-amber-300 to-yellow-500 text-zinc-950 font-mono font-bold text-xs tracking-widest uppercase">
+                                    JOKER-TICKET • WUNSCH
+                                </span>
+                                <span class="font-mono text-xs text-amber-300/80">#18-JOKER-VIP</span>
+                            </div>
+
+                            <div class="flex items-center gap-4 mb-4">
+                                <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-400 to-yellow-600 flex items-center justify-center text-3xl shadow-lg border border-amber-200/40 shrink-0">
+                                    🃏
+                                </div>
+                                <div>
+                                    <p class="text-xs font-mono uppercase tracking-wider text-amber-300">Deine eigene Idee</p>
+                                    <h3 class="font-serif text-2xl font-bold text-white leading-tight">${safeTitle}</h3>
+                                </div>
+                            </div>
+
+                            <p class="text-slate-200 text-sm leading-relaxed mb-5">
+                                ${safeDesc}
+                            </p>
+
+                            <div class="space-y-2 bg-black/45 rounded-xl p-3.5 border border-amber-400/30 text-xs font-mono text-slate-300">
+                                <div class="flex justify-between gap-2">
+                                    <span class="text-slate-400 shrink-0">ZEITRAUM:</span>
+                                    <span class="text-amber-300 font-semibold text-right">${safeDate}</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">INHABER:</span>
+                                    <span class="text-white font-semibold">Christos S.</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">STATUS:</span>
+                                    <span class="text-emerald-400">100% Wunsch-Gutschein</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Abrisskante -->
+                        <div class="relative flex items-center my-1">
+                            <div class="ticket-notch-left"></div>
+                            <div class="w-full ticket-perforation mx-4"></div>
+                            <div class="ticket-notch-right"></div>
+                        </div>
+
+                        <!-- Unterer Bereich: Barcode & Stempel -->
+                        <div class="p-6 sm:p-7 pt-4 bg-black/35 flex flex-col items-center">
+                            <div class="w-full flex flex-col items-center mb-5 opacity-80">
+                                <div class="h-8 w-full max-w-[220px] flex items-stretch justify-between gap-[2px]">
+                                    <span class="bg-amber-200 w-1.5"></span><span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-2"></span>
+                                    <span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-1.5"></span>
+                                    <span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-2"></span><span class="bg-amber-200 w-1"></span>
+                                    <span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-1.5"></span><span class="bg-amber-200 w-1"></span>
+                                    <span class="bg-amber-200 w-2"></span><span class="bg-amber-200 w-0.5"></span><span class="bg-amber-200 w-1.5"></span>
+                                    <span class="bg-amber-200 w-1"></span><span class="bg-amber-200 w-2"></span><span class="bg-amber-200 w-0.5"></span>
+                                </div>
+                                <span class="text-[10px] font-mono tracking-[0.35em] text-amber-300/80 mt-1">CUSTOM-WISH-18</span>
+                            </div>
+
+                            <div class="stamp-area mt-1 text-center">
+                                <div class="official-stamp inline-block border-4 border-emerald-400 text-emerald-400 font-mono font-extrabold text-lg sm:text-xl px-4 py-1.5 rounded-lg uppercase tracking-widest shadow-[0_0_20px_rgba(52,211,153,0.4)]">
+                                    ✓ DEINE WAHL • EINGELÖST
+                                </div>
+                                <p class="text-xs text-amber-200/90 mt-3 font-medium">Gültig für Christos S. • Alles Gute zum 18.!</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.classList.remove('hidden');
+            initTicket3DTilt();
+        }
+
+        function applyFinalTicketState(chosenId, withAnimation = true) {
+            const allWrappers = document.querySelectorAll('#tickets-grid .ticket-wrapper');
+            const grid = document.getElementById('tickets-grid');
+            const customBanner = document.getElementById('custom-idea-banner');
+
+            // Header & Joker-Banner umschalten
+            document.getElementById('tickets-header').classList.add('hidden');
+            document.getElementById('chosen-header').classList.remove('hidden');
+            if (customBanner) customBanner.classList.add('hidden');
+
+            if (withAnimation) {
+                fireConfettiBurst();
+            }
+
+            // Fall A: Christos hat seine eigene Idee (4. Ticket) erstellt
+            if (chosenId === 'custom') {
+                allWrappers.forEach(wrapper => {
+                    if (withAnimation) {
+                        wrapper.classList.add('ticket-eliminated');
+                        setTimeout(() => wrapper.classList.add('hidden'), 500);
+                    } else {
+                        wrapper.classList.add('hidden');
+                    }
+                });
+
+                const showCustom = () => {
+                    grid.classList.add('hidden');
+                    renderCustomTicketCard(currentCustomData);
+                    updateShareLinks('custom');
+                    document.getElementById('post-selection-actions').classList.remove('hidden');
+                };
+
+                if (withAnimation) {
+                    setTimeout(showCustom, 520);
+                } else {
+                    showCustom();
+                }
+                return;
+            }
+
+            // Fall B: Eines der 3 vorgefertigten Tickets wurde gewählt
+            allWrappers.forEach(wrapper => {
+                const id = wrapper.dataset.ticket;
+                if (id !== chosenId) {
+                    if (withAnimation) {
+                        wrapper.classList.add('ticket-eliminated');
+                        setTimeout(() => wrapper.classList.add('hidden'), 500);
+                    } else {
+                        wrapper.classList.add('hidden');
+                    }
+                } else {
+                    const applyCenterFocus = () => {
+                        grid.classList.remove('lg:grid-cols-3');
+                        grid.classList.add('flex', 'justify-center');
+                        wrapper.classList.add('w-full', 'max-w-md', 'mx-auto');
+
+                        // Auswahl-Button verstecken & Stempel einblenden
+                        const btn = wrapper.querySelector('.select-ticket-btn');
+                        const stamp = wrapper.querySelector('.stamp-area');
+                        if (btn) btn.classList.add('hidden');
+                        if (stamp) stamp.classList.remove('hidden');
+
+                        // Goldener Highlight-Glow
+                        const ticketBox = wrapper.querySelector('.vip-ticket');
+                        if (ticketBox) ticketBox.classList.add('animate-pulse-glow');
+
+                        updateShareLinks(chosenId);
+                        document.getElementById('post-selection-actions').classList.remove('hidden');
+                    };
+
+                    if (withAnimation) {
+                        setTimeout(applyCenterFocus, 520);
+                    } else {
+                        applyCenterFocus();
+                    }
+                }
+            });
+        }
+
+        // --- TEILBAREN LINK & WHATSAPP-URL ERZEUGEN ---
+        function buildShareUrl(chosenId) {
+            const payload = { id: chosenId };
+            if (chosenId === 'custom' && currentCustomData) {
+                payload.custom = currentCustomData;
+            }
+            const encoded = encodeSharePayload(payload);
+            const url = new URL(window.location.href.split('?')[0]);
+            url.searchParams.set('choice', encoded);
+            return url.toString();
+        }
+
+        function updateShareLinks(chosenId) {
+            const shareUrl = buildShareUrl(chosenId);
+            const waBtn = document.getElementById('whatsapp-share-link');
+            if (waBtn) {
+                const labels = {
+                    riesen: 'MHP RIESEN Ludwigsburg Heimspiel-Ticket',
+                    kino: 'Kino-Abend nach Wahl',
+                    kart: 'Go-Kart Action-Tag',
+                    custom: currentCustomData?.title ? `Eigene Idee: ${currentCustomData.title}` : 'Mein Wunsch-Gutschein'
+                };
+                const msg = `Hey! Ich habe mich bei meinem 18. Geburtstags-Gutschein entschieden: *${labels[chosenId]}* 🎉 Hier ist mein eingelöstes Ticket:\n${shareUrl}`;
+                waBtn.href = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+            }
+        }
+
+        function copyShareLink() {
+            const saved = localStorage.getItem(STORAGE_KEY_TICKET) || 'riesen';
+            const shareUrl = buildShareUrl(saved);
+
+            const tempInput = document.createElement('textarea');
+            tempInput.value = shareUrl;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                const copyBtn = document.getElementById('copy-btn');
+                const toast = document.getElementById('share-toast');
+                const originalHtml = copyBtn.innerHTML;
+
+                copyBtn.innerHTML = '<span>✅</span> Link kopiert!';
+                copyBtn.classList.add('border-emerald-500', 'text-emerald-400');
+                if (toast) toast.classList.remove('hidden');
+
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalHtml;
+                    copyBtn.classList.remove('border-emerald-500', 'text-emerald-400');
+                }, 3000);
+            } catch (err) {
+                console.error('Kopieren fehlgeschlagen', err);
+            }
+            document.body.removeChild(tempInput);
+        }
+
+        // --- CLIENTSEITIGER PDF-DOWNLOAD (HTML2CANVAS + JSPDF MIT FALLBACK) ---
+        async function downloadVoucherPDF() {
+            const saved = localStorage.getItem(STORAGE_KEY_TICKET);
+            const targetCard = saved === 'custom'
+                ? document.querySelector('#ticket-card-custom .vip-ticket')
+                : document.querySelector(`#ticket-card-${saved} .vip-ticket`);
+
+            if (!targetCard) {
+                window.print();
+                return;
+            }
+
+            const btn = document.getElementById('pdf-download-btn');
+            const originalHtml = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span> PDF wird erstellt...';
+            btn.disabled = true;
+
+            try {
+                if (typeof html2canvas !== 'function' || !window.jspdf?.jsPDF) {
+                    throw new Error('PDF-Bibliotheken nicht geladen');
+                }
+
+                // 3D-Neigung & Glow kurz für einen sauberen Screenshot glätten
+                const prevTransform = targetCard.style.transform;
+                targetCard.style.transform = 'none';
+
+                const canvas = await html2canvas(targetCard, {
+                    scale: 2.5,
+                    backgroundColor: '#07090e',
+                    useCORS: true,
+                    logging: false
+                });
+
+                targetCard.style.transform = prevTransform;
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+
+                // Dunkler Hintergrund auf der gesamten A4-Seite
+                pdf.setFillColor(7, 9, 14);
+                pdf.rect(0, 0, pageWidth, pageHeight, 'F');
+
+                // Überschrift im PDF
+                pdf.setTextColor(251, 191, 36);
+                pdf.setFont('helvetica', 'bold');
+                pdf.setFontSize(18);
+                pdf.text('ALLES GUTE ZUM 18. GEBURTSTAG, CHRISTOS!', pageWidth / 2, 24, { align: 'center' });
+
+                pdf.setTextColor(203, 213, 225);
+                pdf.setFont('helvetica', 'normal');
+                pdf.setFontSize(11);
+                pdf.text('Offizieller Geburtstags-Gutschein • Inhaber: Christos S.', pageWidth / 2, 32, { align: 'center' });
+
+                // Ticket zentriert einpassen
+                const maxImgWidth = 115;
+                const imgHeight = (canvas.height * maxImgWidth) / canvas.width;
+                const xPos = (pageWidth - maxImgWidth) / 2;
+                const yPos = 42;
+
+                pdf.addImage(imgData, 'PNG', xPos, yPos, maxImgWidth, imgHeight);
+
+                pdf.save('Gutschein_Christos_18.pdf');
+
+                btn.innerHTML = '<span>✅</span> PDF heruntergeladen!';
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.disabled = false;
+                }, 2500);
+            } catch (err) {
+                console.warn('Direkter PDF-Export Fallback auf Druckdialog:', err);
+                btn.innerHTML = originalHtml;
+                btn.disabled = false;
+                window.print();
+            }
+        }
+
+        // --- ZURÜCKSETZEN (ZUM TESTEN VOR DEM VERSCHENKEN) ---
+        function resetExperience() {
+            localStorage.removeItem(STORAGE_KEY_TICKET);
+            localStorage.removeItem(STORAGE_KEY_CUSTOM_DATA);
+            window.location.href = window.location.href.split('?')[0];
+        }
+
+        // --- KONFETTI EFFEKT ---
+        function fireConfettiBurst() {
+            if (typeof confetti !== 'function') return;
+            const colors = ['#f59e0b', '#fbbf24', '#ef4444', '#ffffff', '#10b981'];
+            confetti({
+                particleCount: 90,
+                spread: 75,
+                origin: { y: 0.6 },
+                colors: colors
+            });
+            setTimeout(() => {
+                confetti({
+                    particleCount: 55,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors
+                });
+                confetti({
+                    particleCount: 55,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors
+                });
+            }, 250);
+        }
+
+        // --- DEZENTE HINTERGRUND-PARTIKEL ---
+        function initParticles() {
+            const container = document.getElementById('particles-container');
+            for (let i = 0; i < 18; i++) {
+                const dot = document.createElement('div');
+                const size = Math.random() * 4 + 2;
+                dot.className = 'absolute rounded-full bg-amber-400/20 animate-float';
+                dot.style.width = `${size}px`;
+                dot.style.height = `${size}px`;
+                dot.style.left = `${Math.random() * 100}%`;
+                dot.style.top = `${Math.random() * 100}%`;
+                dot.style.animationDuration = `${Math.random() * 5 + 5}s`;
+                dot.style.animationDelay = `${Math.random() * 4}s`;
+                container.appendChild(dot);
+            }
+        }
+    </script>
+</body>
+</html>
